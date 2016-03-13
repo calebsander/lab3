@@ -85,7 +85,7 @@ Use the following algorithm:
 
 The hash table should be implemented as a separate module (i.e. in a separate file, with a header file specifying the interface) so that the code could be used in another application.  It may use either chaining or linear probing.
 
-One way to modularize the hash table is to do what we’ve done in most of our data structures, writing functions to create, insert, and search, and possibly a function to destroy (i.e., free). In this case the header file should declare the Hash object as a pointer to some struct whose fields are undeclared. (typedef struct hash *Hash). The names and types of the fields, which hold all information about the hash table, are only declared in the file that implements the module.
+One way to modularize the hash table is to do what we’ve done in most of our data structures, writing functions to create, insert, and search, and possibly a function to destroy (i.e., free). In this case the header file should declare the Hash object as a pointer to some struct whose fields are undeclared. (typedef struct hash \*Hash). The names and types of the fields, which hold all information about the hash table, are only declared in the file that implements the module.
 
 Another way is to create a module that implements one hash table (instead of allowing yout o create many), with functions to insert and search, and possibly a function to initialize. Static global variables hold all of the information about the hash table.
 
@@ -102,7 +102,7 @@ Your hash function should depend on all of the bits in the representation yet be
 Reducing a string to an unsigned integer (which you can then mod down to the correct size) can be done with a combination of shifts/multiplies (to move bits to the left) and adds/xors (to introduce new characters).  Good performance dictates that this integer not be invariant under permutations or depend on a subset of the characters (why?).  Together with the fact that it should have as many as seven digits unless the number of squares in the tray is very small (why?), this constrains the sizes of the shifts/multipliers. 
 
 Here is a hash function for strings that you may use:
-
+```c
 	// Return hash of string S into [0,SIZE)
 	static int hash (char *s, long size)
 	{
@@ -113,7 +113,7 @@ Here is a hash function for strings that you may use:
 		sum = (sum<<4) ^ *s;
 	    return prime * sum % size;
 	}
-
+```
 ###Memory-efficiency
 
 A 3x3 problem with no solution will lead to a hashtable with 181,440 entries when your algorithm terminates. You should make sure that each entry uses no more than about 100 bytes of memory (and ideally less) so that malloc(...) can always successfully return a sufficiently large memory block to you!
