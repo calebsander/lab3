@@ -1,7 +1,7 @@
 #Lab 3: The Nine Puzzle
 ###Due before class, Friday, April 8
 
-Reminder: do not under any circumstances copy another student’s code or give a copy of your code to another student. After discussing the assignment with another student, do not take any written or electronic record away -- and please engage in a full hour of mind-numbing activity before you work on it again :)
+Reminder: do not under any circumstances copy another student’s code. After discussing the assignment with another student, please engage in a full hour of mind-numbing activity before you work on it again. If a piece of your code is inspired by another student (either conversation, or looking at their code), you must give them credit in a comment. If a significant portion of the lab is credited to another student, your grade will reflect this. Since it is very hard to "un-see" a working algorithm or way of organizing code, I strongly encourage you to attempt a complete solution on your own without looking at your classmates' solutions.
 
 ###Description of the problem
 
