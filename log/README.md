@@ -12,8 +12,8 @@ While you work, please fill out the following table. Each push should contain at
 |-------|--------------|------------|-----------|
 | 03/07 | 8:54         | 1:01       | Parsed arguments, created a `Position` struct and a `Queue` library |
 | 03/08 | 10:30        | 1:45       | Added in `HashMap` and implemented algorithm; seems to be working without any memory leaks |
-| N/A   | N/A          | N/A        | *Your entries here* |
-|**Total**||*Total time spent here*||
+| 03/28 | 21:30        | 0:15       | Migrated to new repo, added comments, made `HashMap` resize to be 4 times as large |
+|**Total**|            |*Total time spent here*||
 
 
 #### When you finish

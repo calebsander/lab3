@@ -13,6 +13,9 @@
 #define MIN_DIMENSION 2
 #define DEFAULT_DIMENSION 3
 
+#define FOUND ' ' //character that shouldn't occur in position strings
+
+//If map doesn't contain the position, add it to the map and the queue
 void newPosition(HashMap *map, Queue *searchQueue, Position *moved, Position *from, const unsigned short currentLength) {
 	if (contains(map, moved)) freePosition(moved);
 	else {
@@ -35,7 +38,7 @@ int main(int argc, char **argv) {
 		fputs("Invalid argument syntax. Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n", stderr);
 		exit(1);
 	}
-	setDimensions((unsigned int)height, (unsigned int)width);
+	setDimensions((unsigned int)height, (unsigned int)width); //set the dimensions of all positions so we can check to ensure that any new positions match the dimensions
 	int maxLength = atoi(argv[MAX_LENGTH_ARG]);
 	if (maxLength < 1) {
 		fputs("MAXLENGTH must be positive\n", stderr);
@@ -52,15 +55,15 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 		}
-		*goalSearch = ' '; //register that this character has been matched
+		*goalSearch = FOUND; //register that this character has been matched
 	}
 	free(goalCopy);
 	Position *initial = parsePosition(initialString), *goal = parsePosition(goalString);
-	Queue *searchQueue = makeEmptyQueue();
-	HashMap *map = makeEmptyMap();
-	push(searchQueue, goal);
-	put(map, goal, NULL, 0);
-	Position *newInitial = NULL;
+	Queue *searchQueue = makeEmptyQueue(); //queue of positions to look through
+	HashMap *map = makeEmptyMap(); //map of reached positions
+	push(searchQueue, goal); //start looking with the goal position (trying to get back to initial position)
+	put(map, goal, NULL, 0); //we didn't reach the goal from and previous position, and no moves were necessary
+	Position *newInitial = NULL; //stores the reference to the position equivalent to inital that was found in the queued, if a path was found
 	while (!isEmpty(searchQueue)) {
 		Position *p = pop(searchQueue);
 		if (equals(p, initial)) {
@@ -79,13 +82,12 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-	if (contains(map, initial)) {
-		for (Position *lookup = initial; lookup; lookup = getFrom(map, lookup)) printPosition(lookup);
+	if (contains(map, initial)) { //iterate backwards through steps used to get to initial from goal - this will print out the steps in order
+		for (Position *step = newInitial; step; step = getFrom(map, step)) printPosition(step);
 	}
-	freeEntries(map, initial, goal);
-	if (newInitial) freePosition(newInitial); //position equivalent to initial exists in HashMap so must be explicitly deleted
-	free(initial);
-	free(goal);
+	freeEntries(map, initial, goal); //free all the positions (strings and wrappers) used except for initial and goal, since their strings weren't malloc'd
+	if (newInitial) freePosition(newInitial); //this position wasn't deleted because it is equivalent to the initial position
+	free(initial); free(goal); //free wrappers
 	freeQueue(searchQueue);
 	freeMap(map);
 }

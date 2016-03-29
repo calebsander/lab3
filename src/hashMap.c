@@ -75,7 +75,7 @@ void put(HashMap *map, Position *key, Position *from, unsigned short length) { /
 	addElementResize(map, key, from, length, true);
 }
 void addElementResize(HashMap *map, Position *key, Position *from, unsigned short length, bool external) {
-	if (external && map->elementCount + 1 > map->bucketCount * LOAD_FACTOR) allocateBuckets(map, map->bucketCount << 1); //there is a possibility of exceeding the load factor
+	if (external && map->elementCount + 1 > map->bucketCount * LOAD_FACTOR) allocateBuckets(map, map->bucketCount << 2); //there is a possibility of exceeding the load factor
 	BucketNode **node = map->buckets + hash(key, map->bucketCount);
 	if (external) map->elementCount++;
 	*node = makeNode(key, from, length, *node);
