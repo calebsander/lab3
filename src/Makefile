@@ -1,2 +1,2 @@
-Nine: Nine.c Hashtable.c Queue.c
-	     cc -o Nine Nine.c Hashtable.c Queue.c
+Nine: *.c
+	     cc -std=c99 -pedantic -Wall -g *.c -o Nine
