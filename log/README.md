@@ -6,7 +6,7 @@ Before you start work on Lab 3, please read the assignment carefully and estimat
 **Estimated time spent on project:** *Your estimate here*
 
 #### While you work
-While you work, please fill out the following table. Each commit should contain at least one new log entry.
+While you work, please fill out the following table. Each push should contain at least one new log entry.
 
 | Date | Time Started | Time Spent | Work Done |
 |------|--------------|------------|-----------|
