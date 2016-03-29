@@ -1,3 +1,8 @@
+/*
+position.h
+Caleb Sander
+Functions for manipulating position structs
+*/
 #ifndef __POSITION_H__
 	#define __POSITION_H__
 	#include <stdbool.h>
@@ -20,5 +25,5 @@
 	Position *moveRight(Position *position);
 	void freePosition(Position *position);
 	void printPosition(Position *position);
-	char *strdup(char *orig);
+	char *strdupe(char *orig);
 #endif

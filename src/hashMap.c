@@ -1,11 +1,16 @@
+/*
+hashMap.c
+Caleb Sander
+Implements the hash table that contains reached positions
+*/
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "hashMap.h"
 
-#define LOAD_FACTOR 5
-#define DEFAULT_BUCKETS 1024
+#define LOAD_FACTOR 5 //maximum number of nodes per bucket allowed
+#define DEFAULT_BUCKETS 1024 //the number of buckets to allocate initially
 typedef struct bucketNode BucketNode;
 struct bucketNode {
 	Position *key;
@@ -19,10 +24,18 @@ struct hashMap {
 	BucketNode **buckets;
 };
 
+//Finds the bucket index based on the key
 unsigned int hash(Position *value, unsigned int bucketCount) {
 	return hashCode(value) % bucketCount;
 }
-void addElementResize(HashMap *map, Position *key, Position *from, unsigned short length, bool external);
+//Add an element to the map and check if it needs to be resized
+void addElementResize(HashMap *map,
+	Position *key,
+	Position *from,
+	unsigned short length,
+	bool external); //true if using put(), false if just moving in a resize
+//Allocate the specified number of buckets in the map, move existing nodes
+//To new buckets
 void allocateBuckets(HashMap *map, unsigned int count) {
 	const unsigned int oldCount = map->bucketCount;
 	BucketNode **oldBuckets = map->buckets;
@@ -41,7 +54,11 @@ void allocateBuckets(HashMap *map, unsigned int count) {
 		free(oldBuckets);
 	}
 }
-BucketNode *makeNode(Position *key, Position *from, unsigned short length, BucketNode *next) {
+//Make a node with the specified key and values
+BucketNode *makeNode(Position *key,
+	Position *from,
+	unsigned short length,
+	BucketNode *next) {
 	BucketNode *node = malloc(sizeof(*node));
 	node->key = key;
 	node->from = from;
@@ -50,6 +67,7 @@ BucketNode *makeNode(Position *key, Position *from, unsigned short length, Bucke
 	return node;
 }
 
+//Create an empty map
 HashMap *makeEmptyMap() {
 	HashMap *map = malloc(sizeof(*map));
 	map->buckets = NULL;
@@ -58,6 +76,7 @@ HashMap *makeEmptyMap() {
 	return map;
 }
 
+//Get the size of map
 unsigned int size(HashMap *map) {
 	unsigned int result = 0;
 	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {

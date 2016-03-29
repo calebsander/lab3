@@ -102,7 +102,7 @@ bool down(unsigned char possibilities) {
 bool right(unsigned char possibilities) {
 	return (possibilities >> RIGHT) & 1;
 }
-char *strdup(char *orig) {
+char *strdupe(char *orig) {
 	char *newString = malloc(sizeof(*newString) * (strlen(orig) + 1));
 	strcpy(newString, orig);
 	return newString;

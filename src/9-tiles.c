@@ -1,3 +1,8 @@
+/*
+9-tiles.c
+Caleb Sander
+Contains the main function for the program
+*/
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +19,14 @@
 #define DEFAULT_DIMENSION 3
 
 #define FOUND ' ' //character that shouldn't occur in position strings
+#define INVALID_SYNTAX "Invalid argument syntax. Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n"
 
 //If map doesn't contain the position, add it to the map and the queue
-void newPosition(HashMap *map, Queue *searchQueue, Position *moved, Position *from, const unsigned short currentLength) {
+void newPosition(HashMap *map,
+	Queue *searchQueue,
+	Position *moved,
+	Position *from,
+	const unsigned short currentLength) {
 	if (contains(map, moved)) freePosition(moved);
 	else {
 		put(map, moved, from, currentLength + 1);
@@ -35,18 +45,21 @@ int main(int argc, char **argv) {
 		}
 	}
 	else {
-		fputs("Invalid argument syntax. Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n", stderr);
+		fputs(INVALID_SYNTAX, stderr);
 		exit(1);
 	}
-	setDimensions((unsigned int)height, (unsigned int)width); //set the dimensions of all positions so we can check to ensure that any new positions match the dimensions
-	int maxLength = atoi(argv[MAX_LENGTH_ARG]);
-	if (maxLength < 1) {
+	//Set the dimensions of all positions so we can check to ensure that
+	//any new positions match the dimensions
+	setDimensions((unsigned int)height, (unsigned int)width);
+
+	const int maxLength = atoi(argv[MAX_LENGTH_ARG]);
+	if (maxLength < 1) { //if string conversion fails, this will be 0
 		fputs("MAXLENGTH must be positive\n", stderr);
 		exit(1);
 	}
 	char *initialString = argv[INITIAL_ARG];
 	char *goalString = argv[GOAL_ARG];
-	char *goalCopy = strdup(goalString);
+	char *goalCopy = strdupe(goalString);
 	for (char *initialSearch = initialString; *initialSearch; initialSearch++) {
 		char *goalSearch;
 		for (goalSearch = goalCopy; *goalSearch != *initialSearch; goalSearch++) {
