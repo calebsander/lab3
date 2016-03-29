@@ -1,3 +1,8 @@
+/*
+position.c
+Caleb Sander
+Implements the position structure (stored as a string) and its functions
+*/
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +54,7 @@ unsigned int hashCode(Position *position) {
 	for (; *s; s++) sum = (sum << 4) ^ *s;
 	return (unsigned int)(PRIME * sum);
 }
-//Returns whether two positions are equivalent (if each square has the same value)
+//Returns whether two positions are equivalent (if every square matches)
 bool equals(Position *position1, Position *position2) {
 	return !strcmp(position1->values, position2->values);
 }
@@ -59,7 +64,8 @@ unsigned int rawIndex(unsigned int y, unsigned int x) {
 	assert(y < height && x < width);
 	return y * height + x;
 }
-//Values for bit positions; only matters that they are all distinct and less than 8
+//Values for bit positions of possibilities
+//Must be distinct and less than 8 (so they fit in a byte)
 #define UP 0
 #define LEFT 1
 #define DOWN 2
@@ -82,63 +88,84 @@ Index *findEmpty(Position *position) {
 	}
 	assert(false); //there should always be an empty square
 }
-unsigned char possibleMoves(Position *position) { //returns a bitmask of the possible directions the empty square could go
+//Returns a bitmask of the possible directions the empty square could go
+//Process it using up(), left(), down(), and right()
+unsigned char possibleMoves(Position *position) {
 	Index *emptyIndex = findEmpty(position);
 	const unsigned int x = emptyIndex->x;
 	const unsigned int y = emptyIndex->y;
 	free(emptyIndex);
-	return (unsigned char)(((y != 0) << UP) | ((x != 0) << LEFT) | ((y != height - 1) << DOWN) | ((x != width - 1) << RIGHT));
+	return (unsigned char)(
+		((y != 0) << UP) |
+		((x != 0) << LEFT) |
+		((y != height - 1) << DOWN) |
+		((x != width - 1) << RIGHT)
+	);
 	assert(false);
 }
+//Returns whether it is possible to move the empty square up
 bool up(unsigned char possibilities) {
 	return (possibilities >> UP) & 1;
 }
+//Returns whether it is possible to move the empty square left
 bool left(unsigned char possibilities) {
 	return (possibilities >> LEFT) & 1;
 }
+//Returns whether it is possible to move the empty square down
 bool down(unsigned char possibilities) {
 	return (possibilities >> DOWN) & 1;
 }
+//Returns whether it is possible to move the empty square right
 bool right(unsigned char possibilities) {
 	return (possibilities >> RIGHT) & 1;
 }
+//Essentially strdup() but this isn't in C99
 char *strdupe(char *orig) {
 	char *newString = malloc(sizeof(*newString) * (strlen(orig) + 1));
 	strcpy(newString, orig);
 	return newString;
 }
+//Returns a new position with the empty square moved up
 Position *moveUp(Position *position) {
 	Index *emptyIndex = findEmpty(position);
-	char *newPositionString = strdup(position->values);
-	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] = newPositionString[rawIndex(emptyIndex->y - 1, emptyIndex->x)];
+	char *newPositionString = strdupe(position->values);
+	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] =
+		newPositionString[rawIndex(emptyIndex->y - 1, emptyIndex->x)];
 	newPositionString[rawIndex(emptyIndex->y - 1, emptyIndex->x)] = EMPTY;
 	free(emptyIndex);
 	return parsePosition(newPositionString);
 }
+//Returns a new position with the empty square moved left
 Position *moveLeft(Position *position) {
 	Index *emptyIndex = findEmpty(position);
-	char *newPositionString = strdup(position->values);
-	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] = newPositionString[rawIndex(emptyIndex->y, emptyIndex->x - 1)];
+	char *newPositionString = strdupe(position->values);
+	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] =
+		newPositionString[rawIndex(emptyIndex->y, emptyIndex->x - 1)];
 	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x - 1)] = EMPTY;
 	free(emptyIndex);
 	return parsePosition(newPositionString);
 }
+//Returns a new position with the empty square moved down
 Position *moveDown(Position *position) {
 	Index *emptyIndex = findEmpty(position);
-	char *newPositionString = strdup(position->values);
-	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] = newPositionString[rawIndex(emptyIndex->y + 1, emptyIndex->x)];
+	char *newPositionString = strdupe(position->values);
+	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] =
+		newPositionString[rawIndex(emptyIndex->y + 1, emptyIndex->x)];
 	newPositionString[rawIndex(emptyIndex->y + 1, emptyIndex->x)] = EMPTY;
 	free(emptyIndex);
 	return parsePosition(newPositionString);
 }
+//Returns a new position with the empty square moved right
 Position *moveRight(Position *position) {
 	Index *emptyIndex = findEmpty(position);
-	char *newPositionString = strdup(position->values);
-	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] = newPositionString[rawIndex(emptyIndex->y, emptyIndex->x + 1)];
+	char *newPositionString = strdupe(position->values);
+	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x)] =
+		newPositionString[rawIndex(emptyIndex->y, emptyIndex->x + 1)];
 	newPositionString[rawIndex(emptyIndex->y, emptyIndex->x + 1)] = EMPTY;
 	free(emptyIndex);
 	return parsePosition(newPositionString);
 }
+//Frees a position and its wrapped string
 void freePosition(Position *position) {
 	free(position->values);
 	free(position);

@@ -11,14 +11,15 @@ Implements the hash table that contains reached positions
 
 #define LOAD_FACTOR 5 //maximum number of nodes per bucket allowed
 #define DEFAULT_BUCKETS 1024 //the number of buckets to allocate initially
-typedef struct bucketNode BucketNode;
+typedef struct bucketNode BucketNode; //a node in the map
 struct bucketNode {
-	Position *key;
-	Position *from;
+	Position *key; //the position
+	Position *from; //the position that this was reached from
+	//The number of moves required to get to this position (max 31)
 	unsigned short length;
-	BucketNode *next;
+	BucketNode *next; //NULL if the last node in the bucket, otherwise the next one
 };
-struct hashMap {
+struct hashMap { //the map
 	unsigned int bucketCount;
 	unsigned int elementCount;
 	BucketNode **buckets;
@@ -76,55 +77,62 @@ HashMap *makeEmptyMap() {
 	return map;
 }
 
-//Get the size of map
-unsigned int size(HashMap *map) {
-	unsigned int result = 0;
-	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {
-		for (BucketNode *node = map->buckets[bucket]; node; node = node->next) result++;
-	}
-	return result;
-}
+//Returns whether a node with the specified key is in the map
 bool contains(HashMap *map, Position *key) {
-	for (BucketNode *node = map->buckets[hash(key, map->bucketCount)]; node; node = node->next) {
+	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
+	for (BucketNode *node = bucket; node; node = node->next) {
 		if (equals(node->key, key)) return true;
 	}
 	return false;
 }
-void put(HashMap *map, Position *key, Position *from, unsigned short length) { //no checking is done to ensure that the key is not alreay in the map
+//Put a new node into the map
+//No checking is done to ensure that the key is not alreay in the map
+void put(HashMap *map, Position *key, Position *from, unsigned short length) {
 	addElementResize(map, key, from, length, true);
 }
-void addElementResize(HashMap *map, Position *key, Position *from, unsigned short length, bool external) {
-	if (external && map->elementCount + 1 > map->bucketCount * LOAD_FACTOR) allocateBuckets(map, map->bucketCount << 2); //there is a possibility of exceeding the load factor
+void addElementResize(HashMap *map,
+	Position *key,
+	Position *from,
+	unsigned short length,
+	bool external) {
+	//If there is a possibility of exceeding the load factor, resize
+	if (external && map->elementCount + 1 > map->bucketCount * LOAD_FACTOR) {
+		allocateBuckets(map, map->bucketCount << 2);
+	}
 	BucketNode **node = map->buckets + hash(key, map->bucketCount);
 	if (external) map->elementCount++;
 	*node = makeNode(key, from, length, *node);
-	assert(!(external && map->elementCount != size(map)));
 }
+//Get the position that led to the specified position
 Position *getFrom(HashMap *map, Position *key) {
-	for (BucketNode *node = map->buckets[hash(key, map->bucketCount)]; node; node = node->next) {
+	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
+	for (BucketNode *node = bucket; node; node = node->next) {
 		if (equals(node->key, key)) return node->from;
 	}
 	assert(false);
 	return NULL;
 }
+//Get the minimum length of the path to the specified position
 unsigned short getLength(HashMap *map, Position *key) {
-	for (BucketNode *node = map->buckets[hash(key, map->bucketCount)]; node; node = node->next) {
+	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
+	for (BucketNode *node = bucket; node; node = node->next) {
 		if (equals(node->key, key)) return node->length;
 	}
 	assert(false);
 	return 0;
 }
-void freeEntries(HashMap *map, Position *initial, Position *goal) {
+//Free the position strings and wrappers of all entries
+void freeEntries(HashMap *map) {
 	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {
 		for (BucketNode *node = map->buckets[bucket]; node; node = node->next) {
-			if (!(equals(node->key, initial) || equals(node->key, goal))) freePosition(node->key);
+			freePosition(node->key);
 		}
 	}
 }
+//Free the map - all the nodes, the buckets array, and the map structure
 void freeMap(HashMap *map) {
 	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {
-		BucketNode *node = map->buckets[bucket];
-		while (node) {
+		for (BucketNode *node = map->buckets[bucket]; node;) {
 			BucketNode *lastNode = node;
 			node = node->next;
 			free(lastNode);

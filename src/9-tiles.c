@@ -19,7 +19,8 @@ Contains the main function for the program
 #define DEFAULT_DIMENSION 3
 
 #define FOUND ' ' //character that shouldn't occur in position strings
-#define INVALID_SYNTAX "Invalid argument syntax. Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n"
+#define INVALID_SYNTAX "Invalid argument syntax.\
+Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n"
 
 //If map doesn't contain the position, add it to the map and the queue
 void newPosition(HashMap *map,
@@ -63,7 +64,9 @@ int main(int argc, char **argv) {
 	for (char *initialSearch = initialString; *initialSearch; initialSearch++) {
 		char *goalSearch;
 		for (goalSearch = goalCopy; *goalSearch != *initialSearch; goalSearch++) {
-			if (!*goalSearch) { //reached the end of goalCopy without finding a matching character, so the input was invalid
+			if (!*goalSearch) {
+				//reached the end of goalCopy without finding a matching character
+				//so the input was invalid
 				fputs("Characters in initial and goal don't match\n", stderr);
 				exit(1);
 			}
@@ -71,12 +74,19 @@ int main(int argc, char **argv) {
 		*goalSearch = FOUND; //register that this character has been matched
 	}
 	free(goalCopy);
-	Position *initial = parsePosition(initialString), *goal = parsePosition(goalString);
-	Queue *searchQueue = makeEmptyQueue(); //queue of positions to look through
-	HashMap *map = makeEmptyMap(); //map of reached positions
-	push(searchQueue, goal); //start looking with the goal position (trying to get back to initial position)
-	put(map, goal, NULL, 0); //we didn't reach the goal from and previous position, and no moves were necessary
-	Position *newInitial = NULL; //stores the reference to the position equivalent to inital that was found in the queued, if a path was found
+	Position *initial = parsePosition(initialString);
+	//This position is constructed using malloc'd strings for consistency
+	Position *goal = parsePosition(strdupe(goalString));
+	//Queue of positions to look through
+	Queue *searchQueue = makeEmptyQueue();
+	//Map of reached positions
+	HashMap *map = makeEmptyMap();
+	//Start looking with the goal position (trying to get back to initial position)
+	push(searchQueue, goal);
+	//Didn't reach the goal from a previous position, and no moves were necessary
+	put(map, goal, NULL, 0);
+	//If a path was found, the position that matched initial (needs to be freed)
+	Position *newInitial = NULL;
 	while (!isEmpty(searchQueue)) {
 		Position *p = pop(searchQueue);
 		if (equals(p, initial)) {
@@ -88,19 +98,32 @@ int main(int argc, char **argv) {
 			const unsigned short currentLength = getLength(map, p);
 			if (currentLength < maxLength) {
 				const unsigned char possibilities = possibleMoves(p);
-				if (up(possibilities)) newPosition(map, searchQueue, moveUp(p), p, currentLength);
-				if (left(possibilities)) newPosition(map, searchQueue, moveLeft(p), p, currentLength);
-				if (down(possibilities)) newPosition(map, searchQueue, moveDown(p), p, currentLength);
-				if (right(possibilities)) newPosition(map, searchQueue, moveRight(p), p, currentLength);
+				if (up(possibilities)) {
+					newPosition(map, searchQueue, moveUp(p), p, currentLength);
+				}
+				if (left(possibilities)) {
+					newPosition(map, searchQueue, moveLeft(p), p, currentLength);
+				}
+				if (down(possibilities)) {
+					newPosition(map, searchQueue, moveDown(p), p, currentLength);
+				}
+				if (right(possibilities)) {
+					newPosition(map, searchQueue, moveRight(p), p, currentLength);
+				}
 			}
 		}
 	}
-	if (contains(map, initial)) { //iterate backwards through steps used to get to initial from goal - this will print out the steps in order
-		for (Position *step = newInitial; step; step = getFrom(map, step)) printPosition(step);
-	}
-	freeEntries(map, initial, goal); //free all the positions (strings and wrappers) used except for initial and goal, since their strings weren't malloc'd
-	if (newInitial) freePosition(newInitial); //this position wasn't deleted because it is equivalent to the initial position
-	free(initial); free(goal); //free wrappers
 	freeQueue(searchQueue);
+	//Iterate backwards through steps used to get to initial from goal
+	//This will print out the steps in order
+	if (contains(map, initial)) {
+		for (Position *step = newInitial; step; step = getFrom(map, step)) {
+			printPosition(step);
+		}
+	}
+	//Free everything that had been used
+	freeEntries(map);
 	freeMap(map);
+	//It is the copy (newInitial) that was in the map, so freed separately
+	free(initial);
 }

@@ -1,3 +1,8 @@
+/*
+queue.h
+Caleb Sander
+Functions for manipulating queues of positions
+*/
 #include <stdbool.h>
 #include "position.h"
 

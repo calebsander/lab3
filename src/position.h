@@ -13,7 +13,6 @@ Functions for manipulating position structs
 	Position *parsePosition(char *positionString);
 	unsigned int hashCode(Position *position);
 	bool equals(Position *position1, Position *position2);
-	unsigned char possibleMoves(Position *position); //bits represent which of the 4 directions the '-' can be moved in
 	unsigned char possibleMoves(Position *position);
 	bool up(unsigned char possibilities);
 	bool left(unsigned char possibilities);
