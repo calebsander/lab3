@@ -101,9 +101,9 @@ Your hash function should depend on all of the bits in the representation yet be
 
 Reducing a string to an unsigned integer (which you can then mod down to the correct size) can be done with a combination of shifts/multiplies (to move bits to the left) and adds/xors (to introduce new characters).  Good performance dictates that this integer not be invariant under permutations or depend on a subset of the characters (why?).  Together with the fact that it should have as many as seven digits unless the number of squares in the tray is very small (why?), this constrains the sizes of the shifts/multipliers. 
 
-Here is a hash function for strings that you may use (also available in src/hashFunction.c):
+Here is a hash function for strings that you may use (already copied into src/Hashtable.c):
 ```c
-	// Return hash of string S into [0,SIZE)
+	// Return hash of string s into [0,size)
 	static int hash (char *s, long size)
 	{
 	    unsigned long sum;
