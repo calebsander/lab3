@@ -22,13 +22,23 @@ Contains the main function for the program
 #define INVALID_SYNTAX "Invalid argument syntax.\
 Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n"
 
-//If map doesn't contain the position, add it to the map and the queue
+/**
+ * If map doesn't contain the position, adds it to map and queue
+ * (utility function used by main())
+ * @param map the map of found positions being used
+ * @param searchQueue the queue of positions to search
+ * @param moved the position just discovered
+ * @param from the position it was reached from
+ * (in case it needs to be added to the map)
+ * @param currentLength the number of moves to get to "from"
+ * (in case it needs to be added to the map)
+ */
 void newPosition(HashMap *map,
 	Queue *searchQueue,
 	Position *moved,
 	Position *from,
 	const unsigned short currentLength) {
-	if (contains(map, moved)) freePosition(moved);
+	if (contains(map, moved)) freePosition(moved); //this position is a duplicate
 	else {
 		put(map, moved, from, currentLength + 1);
 		push(searchQueue, moved);

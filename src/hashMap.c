@@ -1,7 +1,7 @@
 /*
 hashMap.c
 Caleb Sander
-Implements the hash table that contains reached positions
+Implements the hash table that contains reached Positions
 */
 #include <assert.h>
 #include <stdbool.h>
@@ -13,36 +13,52 @@ Implements the hash table that contains reached positions
 #define DEFAULT_BUCKETS 1024 //the number of buckets to allocate initially
 typedef struct bucketNode BucketNode; //a node in the map
 struct bucketNode {
-	Position *key; //the position
-	Position *from; //the position that this was reached from
-	//The number of moves required to get to this position (max 31)
+	Position *key; //the Position
+	Position *from; //the Position that this was reached from
+	//The number of moves required to get to this Position (max 31 for 3x3)
 	unsigned short length;
 	BucketNode *next; //NULL if the last node in the bucket, otherwise the next one
 };
 struct hashMap { //the map
-	unsigned int bucketCount;
-	unsigned int elementCount;
-	BucketNode **buckets;
+	unsigned int bucketCount; //the number of buckets currently allocated
+	unsigned int elementCount; //the number of nodes in the map
+	BucketNode **buckets; //an array of pointers to buckets
 };
 
-//Finds the bucket index based on the key
+/**
+ * Finds the bucket index based on the key.
+ * @param value the Position being looked up
+ * @param bucketCount the number of buckets in the map
+ * @return the index in the buckets array where the node would/should be located
+ */
 unsigned int hash(Position *value, unsigned int bucketCount) {
 	return hashCode(value) % bucketCount;
 }
-//Add an element to the map and check if it needs to be resized
+/**
+ * Adds an element to the map and resizes if necessary.
+ * @param map the map to which to add
+ * @param key the key of the new node
+ * @param from the from value of the new node
+ * @param length the length value of the new node
+ * @param external true if called by put(), false if adding elements
+ * during a resize (if false, skips size check and doesn't change elementCount)
+ */
 void addElementResize(HashMap *map,
 	Position *key,
 	Position *from,
 	unsigned short length,
 	bool external); //true if using put(), false if just moving in a resize
-//Allocate the specified number of buckets in the map, move existing nodes
-//To new buckets
+/**
+ * Allocates the specified number of buckets in the map and moves old nodes.
+ * @param map the map to resize
+ * @param count the new number of buckets to have
+ */
 void allocateBuckets(HashMap *map, unsigned int count) {
 	const unsigned int oldCount = map->bucketCount;
 	BucketNode **oldBuckets = map->buckets;
 	map->bucketCount = count;
 	map->buckets = calloc(count, sizeof(*(map->buckets)));
-	if (oldBuckets) { //if the map hadn't yet been created
+	if (oldBuckets) { //if the map existed before, migrate entries
 		for (unsigned int oldBucket = 0; oldBucket < oldCount; oldBucket++) {
 			BucketNode *node = oldBuckets[oldBucket];
 			while (node) {
@@ -55,7 +71,14 @@ void allocateBuckets(HashMap *map, unsigned int count) {
 		free(oldBuckets);
 	}
 }
-//Make a node with the specified key and values
+/**
+ * Makes a node with the specified key and values.
+ * @param key the lookup key
+ * @param from the from value
+ * @param length the length value
+ * @param the next node in the bucket
+ * @return a newly malloc'd node
+ */
 BucketNode *makeNode(Position *key,
 	Position *from,
 	unsigned short length,
@@ -68,7 +91,6 @@ BucketNode *makeNode(Position *key,
 	return node;
 }
 
-//Create an empty map
 HashMap *makeEmptyMap() {
 	HashMap *map = malloc(sizeof(*map));
 	map->buckets = NULL;
@@ -77,7 +99,6 @@ HashMap *makeEmptyMap() {
 	return map;
 }
 
-//Returns whether a node with the specified key is in the map
 bool contains(HashMap *map, Position *key) {
 	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
 	for (BucketNode *node = bucket; node; node = node->next) {
@@ -85,8 +106,6 @@ bool contains(HashMap *map, Position *key) {
 	}
 	return false;
 }
-//Put a new node into the map
-//No checking is done to ensure that the key is not alreay in the map
 void put(HashMap *map, Position *key, Position *from, unsigned short length) {
 	addElementResize(map, key, from, length, true);
 }
@@ -103,7 +122,6 @@ void addElementResize(HashMap *map,
 	if (external) map->elementCount++;
 	*node = makeNode(key, from, length, *node);
 }
-//Get the position that led to the specified position
 Position *getFrom(HashMap *map, Position *key) {
 	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
 	for (BucketNode *node = bucket; node; node = node->next) {
@@ -112,7 +130,6 @@ Position *getFrom(HashMap *map, Position *key) {
 	assert(false);
 	return NULL;
 }
-//Get the minimum length of the path to the specified position
 unsigned short getLength(HashMap *map, Position *key) {
 	BucketNode *bucket = map->buckets[hash(key, map->bucketCount)];
 	for (BucketNode *node = bucket; node; node = node->next) {
@@ -121,7 +138,6 @@ unsigned short getLength(HashMap *map, Position *key) {
 	assert(false);
 	return 0;
 }
-//Free the position strings and wrappers of all entries
 void freeEntries(HashMap *map) {
 	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {
 		for (BucketNode *node = map->buckets[bucket]; node; node = node->next) {
@@ -129,7 +145,6 @@ void freeEntries(HashMap *map) {
 		}
 	}
 }
-//Free the map - all the nodes, the buckets array, and the map structure
 void freeMap(HashMap *map) {
 	for (unsigned int bucket = 0; bucket < map->bucketCount; bucket++) {
 		for (BucketNode *node = map->buckets[bucket]; node;) {

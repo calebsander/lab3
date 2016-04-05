@@ -15,6 +15,7 @@ While you work, please fill out the following table. Each push should contain at
 | 03/28 | 21:30        | 0:15       | Migrated to new repo, added comments, made `HashMap` resize to be 4 times as large |
 | 03/29 | 13:45        | 0:40       | Worked to match style guidelines |
 | 03/29 | 17:30        | 1:10       | Commented functions and made heap handling more elegant |
+| 04/04 | 19:30        | 1:15       | Added comments for all structs' fields and functions parameters and return values |
 |**Total**|            |*Total time spent here*||
 
 
