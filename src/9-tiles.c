@@ -19,7 +19,7 @@ Contains the main function for the program
 #define DEFAULT_DIMENSION 3
 
 #define FOUND ' ' //character that shouldn't occur in position strings
-#define INVALID_SYNTAX "Invalid argument syntax.\
+#define INVALID_SYNTAX "Invalid argument syntax. \
 Use ./Nine [HEIGHT WIDTH] MAXLENGTH INITIAL GOAL\n"
 
 /**
